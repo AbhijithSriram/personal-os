@@ -1,0 +1,239 @@
+.attendance-container {
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  padding: 2rem 0;
+}
+
+.attendance-header {
+  margin-bottom: 2rem;
+}
+
+.attendance-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.attendance-header p {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.attendance-filters {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.attendance-filters .form-group {
+  margin-bottom: 0;
+}
+
+.attendance-filters label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.attendance-filters select {
+  width: 100%;
+}
+
+.attendance-overview {
+  margin-bottom: 3rem;
+}
+
+.attendance-card {
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.attendance-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--shadow-hover);
+}
+
+.attendance-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.attendance-card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.attendance-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.course-type-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.625rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  letter-spacing: 0.05em;
+}
+
+.faculty-name {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  margin-bottom: 1.5rem;
+}
+
+.attendance-percentage {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.percentage-circle {
+  width: 120px;
+  height: 120px;
+  border: 6px solid;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.percentage-circle span {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.attendance-breakdown {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.breakdown-row.total {
+  border-top: 1px solid var(--border);
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  font-weight: 600;
+}
+
+.warning-message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #fff3e0;
+  border-left: 3px solid #f57c00;
+  font-size: 0.875rem;
+  color: #e65100;
+}
+
+.class-history h2 {
+  margin-bottom: 1.5rem;
+}
+
+.history-table {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.history-header,
+.history-row {
+  display: grid;
+  grid-template-columns: 120px 100px 100px 120px 1fr;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  align-items: center;
+}
+
+.history-header {
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.history-row {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.history-row:hover {
+  background: var(--bg-secondary);
+}
+
+.status-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.status-badge.present {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.absent {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.status-badge.onduty {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-badge.cancelled {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+
+.notes-cell {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .attendance-overview {
+    grid-template-columns: 1fr;
+  }
+  
+  .history-header,
+  .history-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .history-header > div,
+  .history-row > div {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .notes-cell {
+    white-space: normal;
+  }
+}

@@ -119,16 +119,55 @@
 }
 
 @media (max-width: 768px) {
-  .hours-grid {
-    grid-template-columns: 1fr;
+  .tracker-header h1 {
+    font-size: 1.5rem;
   }
   
   .tracker-controls {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .hours-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .hour-card {
+    padding: 1.25rem;
+  }
+  
+  .hour-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .hour-time {
+    font-size: 1rem;
+  }
+  
+  .hour-badge {
+    font-size: 0.6875rem;
+  }
+  
+  .hour-content textarea {
+    min-height: 60px;
+    font-size: 0.9375rem;
+  }
+  
+  .semester-hint {
+    font-size: 0.6875rem;
+  }
+  
+  .reflection-section {
+    padding: 1.25rem;
   }
   
   .tracker-actions {
     flex-direction: column;
+    padding: 1.5rem 0;
+    gap: 0.75rem;
   }
   
   .tracker-actions button {

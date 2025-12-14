@@ -241,26 +241,83 @@
     gap: 1.5rem;
   }
   
+  .profile-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .profile-user {
+    width: 100%;
+  }
+  
+  .profile-user img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .profile-name {
+    font-size: 1rem;
+  }
+  
+  .profile-email {
+    font-size: 0.8125rem;
+  }
+  
   .profile-tabs {
     overflow-x: auto;
     flex-wrap: nowrap;
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+    -webkit-overflow-scrolling: touch;
   }
   
   .profile-tabs button {
     white-space: nowrap;
-    padding: 1rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.8125rem;
+    flex-shrink: 0;
   }
   
   .settings-section {
-    padding: 1.5rem;
+    padding: 1.25rem;
+  }
+  
+  .settings-section h2 {
+    font-size: 1.25rem;
+  }
+  
+  .settings-section h3 {
+    font-size: 1.125rem;
   }
   
   .array-input {
     flex-direction: column;
   }
   
+  .array-input button {
+    width: 100%;
+  }
+  
+  .semester-info {
+    padding: 1.25rem;
+  }
+  
+  .semester-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .semester-header-row button {
+    width: 100%;
+  }
+  
+  .subject-edit-card {
+    padding: 1.25rem;
+  }
+  
   .profile-actions {
     flex-direction: column;
+    gap: 0.75rem;
   }
   
   .profile-actions button {

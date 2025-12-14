@@ -183,36 +183,75 @@
     gap: 1rem;
   }
   
+  .reminders-header h1 {
+    font-size: 1.5rem;
+  }
+  
   .reminders-header button {
     width: 100%;
   }
   
   .filters-section {
     flex-wrap: wrap;
+    gap: 0.5rem;
   }
   
   .filters-section button {
     flex: 1;
-    min-width: 120px;
-  }
-  
-  .reminder-card {
-    flex-direction: column;
-  }
-  
-  .reminder-checkbox {
-    padding-top: 0;
-  }
-  
-  .reminder-actions {
-    width: 100%;
-  }
-  
-  .reminder-actions button {
-    flex: 1;
+    min-width: 100px;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8125rem;
   }
   
   .reminder-form-overlay {
     padding: 1rem;
+  }
+  
+  .reminder-form {
+    padding: 1.5rem;
+  }
+  
+  .form-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .reminder-card {
+    flex-direction: column;
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+  
+  .reminder-checkbox {
+    padding-top: 0;
+    order: -1;
+  }
+  
+  .reminder-title {
+    flex-wrap: wrap;
+  }
+  
+  .reminder-title h3 {
+    font-size: 1rem;
+  }
+  
+  .status-badge {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .reminder-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+  }
+  
+  .reminder-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .reminder-actions button {
+    width: 100%;
+    flex: none;
   }
 }

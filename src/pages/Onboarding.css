@@ -135,12 +135,21 @@
 }
 
 @media (max-width: 768px) {
+  .onboarding-container {
+    padding: 1rem;
+  }
+  
   .onboarding-box {
-    padding: 2rem;
+    padding: 1.5rem;
+    max-height: none;
   }
   
   .onboarding-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .step-indicator {
+    gap: 0.75rem;
   }
   
   .step-indicator span {
@@ -149,11 +158,46 @@
     font-size: 0.875rem;
   }
   
+  .onboarding-step h2 {
+    font-size: 1.25rem;
+  }
+  
+  .step-description {
+    font-size: 0.9375rem;
+  }
+  
+  .array-input {
+    flex-direction: column;
+  }
+  
+  .array-input input {
+    width: 100%;
+  }
+  
+  .array-input button {
+    width: 100%;
+  }
+  
+  .subject-card {
+    padding: 1.25rem;
+  }
+  
+  .semester-config,
+  .semester-subjects {
+    margin-bottom: 1.5rem;
+  }
+  
   .onboarding-actions {
     flex-direction: column;
+    gap: 0.75rem;
   }
   
   .onboarding-actions button {
     width: 100%;
+    min-width: 0;
+  }
+  
+  .date-hint {
+    font-size: 0.6875rem;
   }
 }

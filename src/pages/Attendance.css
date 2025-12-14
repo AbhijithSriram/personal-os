@@ -217,23 +217,63 @@
 }
 
 @media (max-width: 768px) {
+  .attendance-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .attendance-filters {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
   .attendance-overview {
     grid-template-columns: 1fr;
+  }
+  
+  .attendance-card {
+    padding: 1.25rem;
+  }
+  
+  .percentage-circle {
+    width: 100px;
+    height: 100px;
+    border-width: 5px;
+  }
+  
+  .percentage-circle span {
+    font-size: 1.5rem;
+  }
+  
+  .breakdown-row {
+    font-size: 0.8125rem;
+  }
+  
+  .history-table {
+    overflow-x: auto;
   }
   
   .history-header,
   .history-row {
     grid-template-columns: 1fr;
     gap: 0.5rem;
+    padding: 1rem;
   }
   
   .history-header > div,
   .history-row > div {
     display: flex;
     justify-content: space-between;
+    padding: 0.25rem 0;
+  }
+  
+  .history-header > div::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-tertiary);
   }
   
   .notes-cell {
     white-space: normal;
+    word-break: break-word;
   }
 }

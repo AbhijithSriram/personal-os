@@ -145,43 +145,63 @@ const HealthMetrics = () => {
 
           <div className="metrics-grid grid grid-2">
             <div className="metric-input card">
-              <label>Morning Weight (kg)</label>
+              <label htmlFor="morning-weight">Morning Weight (kg)</label>
+              <small className="form-helper">Optional - Track your daily weight</small>
               <input
+                id="morning-weight"
+                name="morning-weight"
                 type="number"
                 step="0.1"
                 value={metrics.morningWeight}
                 onChange={(e) => handleInputChange('morningWeight', e.target.value)}
                 placeholder="70.5"
+                min="0"
+                max="300"
               />
             </div>
 
             <div className="metric-input card">
-              <label>Glasses of Water</label>
+              <label htmlFor="glasses-water">Glasses of Water</label>
+              <small className="form-helper">Optional - Track your hydration</small>
               <input
+                id="glasses-water"
+                name="glasses-water"
                 type="number"
                 value={metrics.glassesOfWater}
                 onChange={(e) => handleInputChange('glassesOfWater', e.target.value)}
                 placeholder="8"
+                min="0"
+                max="50"
               />
             </div>
 
             <div className="metric-input card">
-              <label>Steps Walked</label>
+              <label htmlFor="steps-walked">Steps Walked</label>
+              <small className="form-helper">Optional - Track your movement</small>
               <input
+                id="steps-walked"
+                name="steps-walked"
                 type="number"
                 value={metrics.steps}
                 onChange={(e) => handleInputChange('steps', e.target.value)}
                 placeholder="10000"
+                min="0"
+                max="100000"
               />
             </div>
 
             <div className="metric-input card">
-              <label>Calories Burnt</label>
+              <label htmlFor="calories-burnt">Calories Burnt</label>
+              <small className="form-helper">Optional - Track your energy expenditure</small>
               <input
+                id="calories-burnt"
+                name="calories-burnt"
                 type="number"
                 value={metrics.caloriesBurnt}
                 onChange={(e) => handleInputChange('caloriesBurnt', e.target.value)}
                 placeholder="2500"
+                min="0"
+                max="10000"
               />
             </div>
           </div>

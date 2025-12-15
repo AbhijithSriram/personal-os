@@ -201,19 +201,28 @@ const Reminders = () => {
               
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label>Name *</label>
+                  <label htmlFor="reminder-name" className="required">Name</label>
                   <input
+                    id="reminder-name"
+                    name="reminder-name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     required
                     placeholder="Assignment submission, Project deadline, etc."
+                    className={!formData.name.trim() ? 'error' : 'success'}
                   />
+                  {!formData.name.trim() && (
+                    <span className="field-error">Reminder name is required</span>
+                  )}
                 </div>
 
                 <div className="form-group">
-                  <label>Description</label>
+                  <label htmlFor="reminder-description">Description</label>
+                  <small className="form-helper">Optional - Add more details about this reminder</small>
                   <textarea
+                    id="reminder-description"
+                    name="reminder-description"
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     placeholder="Additional details..."
@@ -223,29 +232,49 @@ const Reminders = () => {
 
                 <div className="grid grid-2">
                   <div className="form-group">
-                    <label>Duration (hours)</label>
+                    <label htmlFor="reminder-duration">Duration (hours)</label>
+                    <small className="form-helper">Optional - Estimated time needed</small>
                     <input
+                      id="reminder-duration"
+                      name="reminder-duration"
                       type="number"
                       value={formData.duration}
                       onChange={(e) => handleInputChange('duration', e.target.value)}
                       placeholder="Estimated time"
+                      min="0"
+                      step="0.5"
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Deadline *</label>
+                    <label htmlFor="reminder-deadline" className="required">Deadline</label>
                     <input
+                      id="reminder-deadline"
+                      name="reminder-deadline"
                       type="date"
                       value={formData.deadline}
                       onChange={(e) => handleInputChange('deadline', e.target.value)}
                       required
+                      min={format(new Date(), 'yyyy-MM-dd')}
+                      className={!formData.deadline ? 'error' : 'success'}
                     />
+                    {!formData.deadline && (
+                      <span className="field-error">Deadline date is required</span>
+                    )}
+                    {formData.deadline && (
+                      <small className="form-helper">
+                        Due: {new Date(formData.deadline).toLocaleDateString('en-GB')}
+                      </small>
+                    )}
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label>Reminder Period (days before)</label>
+                  <label htmlFor="reminder-period">Reminder Period (days before)</label>
+                  <small className="form-helper">When should we remind you?</small>
                   <select
+                    id="reminder-period"
+                    name="reminder-period"
                     value={formData.reminderPeriod}
                     onChange={(e) => handleInputChange('reminderPeriod', e.target.value)}
                   >
@@ -258,9 +287,17 @@ const Reminders = () => {
                 </div>
 
                 <div className="form-actions">
-                  <button type="submit" disabled={loading}>
+                  <button 
+                    type="submit" 
+                    disabled={loading || !formData.name.trim() || !formData.deadline}
+                  >
                     {loading ? 'Saving...' : editingId ? 'Update Reminder' : 'Create Reminder'}
                   </button>
+                  {(!formData.name.trim() || !formData.deadline) && (
+                    <span className="button-disabled-reason">
+                      Please provide a name and deadline
+                    </span>
+                  )}
                 </div>
               </form>
             </div>

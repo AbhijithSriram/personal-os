@@ -410,8 +410,10 @@ const Profile = () => {
                       <div key={subIndex} className="subject-edit-card">
                         <div className="grid grid-3">
                           <div className="form-group">
-                            <label>Subject Code</label>
+                            <label htmlFor={`subject-code-edit-${subIndex}`} className="required">Subject Code</label>
                             <input
+                              id={`subject-code-edit-${subIndex}`}
+                              name={`subject-code-edit-${subIndex}`}
                               type="text"
                               value={subject.code}
                               onChange={(e) => {
@@ -419,17 +421,27 @@ const Profile = () => {
                                 newSemesters[semIndex].subjects[subIndex].code = e.target.value;
                                 setFormData(prev => ({ ...prev, semesters: newSemesters }));
                               }}
-                              className={isDuplicateCode(semIndex, subIndex, subject.code) ? 'input-error' : ''}
+                              className={
+                                !subject.code.trim() ? 'error' :
+                                isDuplicateCode(semIndex, subIndex, subject.code) ? 'error' : 
+                                'success'
+                              }
                               placeholder="e.g., UIT3311"
+                              required
                             />
-                            {isDuplicateCode(semIndex, subIndex, subject.code) && (
-                              <small className="error-hint">⚠️ Duplicate code in this semester!</small>
+                            {!subject.code.trim() && (
+                              <span className="field-error">Subject code is required</span>
+                            )}
+                            {subject.code.trim() && isDuplicateCode(semIndex, subIndex, subject.code) && (
+                              <span className="field-error">⚠️ Duplicate code in this semester!</span>
                             )}
                           </div>
                           
                           <div className="form-group">
-                            <label>Subject Name</label>
+                            <label htmlFor={`subject-name-edit-${subIndex}`} className="required">Subject Name</label>
                             <input
+                              id={`subject-name-edit-${subIndex}`}
+                              name={`subject-name-edit-${subIndex}`}
                               type="text"
                               value={subject.name}
                               onChange={(e) => {
@@ -437,7 +449,12 @@ const Profile = () => {
                                 newSemesters[semIndex].subjects[subIndex].name = e.target.value;
                                 setFormData(prev => ({ ...prev, semesters: newSemesters }));
                               }}
+                              className={!subject.name.trim() ? 'error' : 'success'}
+                              required
                             />
+                            {!subject.name.trim() && (
+                              <span className="field-error">Subject name is required</span>
+                            )}
                           </div>
                           
                           <div className="form-group">
@@ -490,17 +507,17 @@ const Profile = () => {
                           </div>
                         )}
                         
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newSemesters = [...formData.semesters];
-                            newSemesters[semIndex].subjects = newSemesters[semIndex].subjects.filter((_, i) => i !== subIndex);
-                            setFormData(prev => ({ ...prev, semesters: newSemesters }));
-                          }}
-                          className="secondary"
+                        <button 
+                          onClick={handleSave} 
+                          disabled={loading || hasValidationErrors()}
                         >
-                          Remove Subject
+                          {loading ? 'Saving...' : 'Save Changes'}
                         </button>
+                        {hasValidationErrors() && (
+                          <span className="button-disabled-reason">
+                            {getValidationErrorMessage()}
+                          </span>
+                        )}
                       </div>
                     ))}
                     

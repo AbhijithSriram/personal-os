@@ -288,7 +288,7 @@ const DailyTracker = () => {
                             ) : (
                               <>
                                 <div className="form-group">
-                                  <label htmlFor={`subject-${slot.time}`}>Subject *</label>
+                                  <label htmlFor={`subject-${slot.time}`} className="required">Subject</label>
                                   <select
                                     id={`subject-${slot.time}`}
                                     name={`subject-${slot.time}`}
@@ -300,6 +300,7 @@ const DailyTracker = () => {
                                       }
                                     }}
                                     required
+                                    className={!hourData?.subject ? 'error' : 'success'}
                                   >
                                     <option value="">Select subject</option>
                                     {activeSemester?.subjects?.map(sub => (
@@ -308,6 +309,9 @@ const DailyTracker = () => {
                                       </option>
                                     ))}
                                   </select>
+                                  {!hourData?.subject && (
+                                    <span className="field-error">Please select a subject for this hour</span>
+                                  )}
                                   <small className="semester-hint mono">
                                     Sem {activeSemester.semesterNumber} ({new Date(activeSemester.startDate + 'T00:00').toLocaleDateString('en-GB')} - {new Date(activeSemester.endDate + 'T00:00').toLocaleDateString('en-GB')})
                                   </small>
@@ -317,6 +321,7 @@ const DailyTracker = () => {
                                   ?.find(s => s.code === hourData.subject)?.courseType !== 'practical' && (
                                   <div className="form-group">
                                     <label htmlFor={`unit-${slot.time}`}>Unit Covered</label>
+                                    <small className="form-helper">Optional - Select if a specific unit was covered</small>
                                     <select
                                       id={`unit-${slot.time}`}
                                       name={`unit-${slot.time}`}
@@ -337,13 +342,14 @@ const DailyTracker = () => {
                                 )}
                                 
                                 <div className="form-group">
-                                  <label htmlFor={`attendance-${slot.time}`}>Attendance *</label>
+                                  <label htmlFor={`attendance-${slot.time}`} className="required">Attendance</label>
                                   <select
                                     id={`attendance-${slot.time}`}
                                     name={`attendance-${slot.time}`}
                                     value={hourData?.attendance || 'present'}
                                     onChange={(e) => updateHourData(slot.time, 'attendance', e.target.value)}
                                     required
+                                    className={!hourData?.attendance ? 'error' : 'success'}
                                   >
                                     <option value="present">Present</option>
                                     <option value="absent">Absent</option>
@@ -355,18 +361,19 @@ const DailyTracker = () => {
                             )}
                           </>
                         )}
-                        
+
                         {!isCollegeHour && (
                           <>
                             <div className="form-group">
                               <label htmlFor={`activity-${slot.time}`}>Activity</label>
+                              <small className="form-helper">Optional - Track what you did this hour</small>
                               <select
                                 id={`activity-${slot.time}`}
                                 name={`activity-${slot.time}`}
                                 value={hourData?.activity || ''}
                                 onChange={(e) => updateHourData(slot.time, 'activity', e.target.value)}
                               >
-                                <option value="">Select activity</option>
+                                <option value="">Select activity (optional)</option>
                                 <optgroup label="Productive">
                                   {userProfile?.productiveActivities?.map((act, idx) => (
                                     <option key={idx} value={act}>{act}</option>
@@ -382,6 +389,7 @@ const DailyTracker = () => {
                             
                             <div className="form-group">
                               <label htmlFor={`productivity-${slot.time}`}>Productivity</label>
+                              <small className="form-helper">Rate your productivity this hour</small>
                               <select
                                 id={`productivity-${slot.time}`}
                                 name={`productivity-${slot.time}`}
@@ -396,9 +404,12 @@ const DailyTracker = () => {
                             </div>
                           </>
                         )}
-                        
+
                         <div className="form-group">
                           <label htmlFor={`notes-${slot.time}`}>Notes</label>
+                          <small className="form-helper">
+                            {isCollegeHour ? "What was taught? Key concepts covered?" : "What did you do? What did you learn?"}
+                          </small>
                           <textarea
                             id={`notes-${slot.time}`}
                             name={`notes-${slot.time}`}

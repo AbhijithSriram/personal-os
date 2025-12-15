@@ -21,6 +21,8 @@ const Onboarding = () => {
     activeEveningStart: '18:00',
     activeEveningEnd: '22:00',
     usualSleepTime: '23:00',
+    residenceType: 'day-scholar',
+    enableHealthMetrics: false,
     
     // Productive activities
     productiveActivities: [''],
@@ -139,12 +141,70 @@ const Onboarding = () => {
     });
   };
 
+  // Validation functions
+  const canProceedStep1 = () => {
+    const required = ['wakeUpTime', 'usualSleepTime', 'collegeStart', 'collegeEnd', 
+                     'activeEveningStart', 'activeEveningEnd'];
+    return required.every(field => formData[field]);
+  };
+
+  const canProceedStep2 = () => {
+    return formData.productiveActivities.some(a => a.trim()) &&
+           formData.unproductiveActivities.some(a => a.trim());
+  };
+
+  const canProceedStep3 = () => {
+    return formData.semesters.every(sem => sem.startDate && sem.endDate);
+  };
+
+  const canProceedStep4 = () => {
+    return formData.semesters.every(sem => 
+      sem.subjects.every(sub => sub.code.trim() && sub.name.trim()) &&
+      !sem.subjects.some((sub, idx) => isDuplicateCode(0, idx, sub.code))
+    );
+  };
+
+  const getValidationMessage = () => {
+    if (step === 1 && !canProceedStep1()) {
+      return "Please fill in all required time fields (marked with *)";
+    }
+    if (step === 2 && !canProceedStep2()) {
+      return "Add at least one activity in each category";
+    }
+    if (step === 3 && !canProceedStep3()) {
+      return "Set semester start and end dates";
+    }
+    if (step === 4 && !canProceedStep4()) {
+      const hasDuplicates = formData.semesters[0].subjects.some((sub, idx) => 
+        isDuplicateCode(0, idx, sub.code)
+      );
+      const hasEmpty = formData.semesters[0].subjects.some(sub => !sub.code.trim() || !sub.name.trim());
+      
+      if (hasDuplicates) return "Fix duplicate subject codes";
+      if (hasEmpty) return "Fill in all subject codes and names";
+    }
+    return "";
+  };
+
+  const canProceed = () => {
+    if (step === 1) return canProceedStep1();
+    if (step === 2) return canProceedStep2();
+    if (step === 3) return canProceedStep3();
+    if (step === 4) return canProceedStep4();
+    return true;
+  };
+
   const handleSubmit = async () => {
+    if (!canProceed()) {
+      alert(getValidationMessage());
+      return;
+    }
+
     // Validate no duplicate subject codes across all semesters
     for (const semester of formData.semesters) {
       const subjectCodes = semester.subjects
         .map(s => s.code.trim().toUpperCase())
-        .filter(code => code); // Remove empty codes
+        .filter(code => code);
       
       const duplicates = subjectCodes.filter((code, index) => 
         subjectCodes.indexOf(code) !== index
@@ -155,14 +215,12 @@ const Onboarding = () => {
         return;
       }
 
-      // Check for empty subject codes
       const emptyCodeSubjects = semester.subjects.filter(s => !s.code.trim());
       if (emptyCodeSubjects.length > 0) {
         alert(`Error in Semester ${semester.semesterNumber}:\nAll subjects must have a subject code.`);
         return;
       }
 
-      // Check for empty subject names
       const emptyNameSubjects = semester.subjects.filter(s => !s.name.trim());
       if (emptyNameSubjects.length > 0) {
         alert(`Error in Semester ${semester.semesterNumber}:\nAll subjects must have a name.`);
@@ -191,7 +249,14 @@ const Onboarding = () => {
     }
   };
 
-  const nextStep = () => setStep(prev => Math.min(prev + 1, 4));
+  const nextStep = () => {
+    if (!canProceed()) {
+      alert(getValidationMessage());
+      return;
+    }
+    setStep(prev => Math.min(prev + 1, 4));
+  };
+  
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
   return (
@@ -212,30 +277,46 @@ const Onboarding = () => {
         {step === 1 && (
           <div className="onboarding-step">
             <h2>Daily Schedule</h2>
-            <p className="step-description">Configure your daily routine and time blocks</p>
+            <p className="step-description">Configure your daily routine and time blocks (fields marked with * are required)</p>
             
             <div className="grid grid-2">
               <div className="form-group">
-                <label>Wake Up Time</label>
+                <label htmlFor="wake-time" className="required">Wake Up Time</label>
                 <input
+                  id="wake-time"
+                  name="wake-time"
                   type="time"
                   value={formData.wakeUpTime}
                   onChange={(e) => handleInputChange('wakeUpTime', e.target.value)}
+                  required
+                  className={!formData.wakeUpTime ? 'error' : 'success'}
                 />
+                {!formData.wakeUpTime && (
+                  <span className="field-error">Please select your wake up time</span>
+                )}
               </div>
               
               <div className="form-group">
-                <label>Usual Sleep Time</label>
+                <label htmlFor="sleep-time" className="required">Usual Sleep Time</label>
                 <input
+                  id="sleep-time"
+                  name="sleep-time"
                   type="time"
                   value={formData.usualSleepTime}
                   onChange={(e) => handleInputChange('usualSleepTime', e.target.value)}
+                  required
+                  className={!formData.usualSleepTime ? 'error' : 'success'}
                 />
+                {!formData.usualSleepTime && (
+                  <span className="field-error">Please select your usual sleep time</span>
+                )}
               </div>
               
               <div className="form-group">
-                <label>Residence Type</label>
+                <label htmlFor="residence-type">Residence Type</label>
                 <select
+                  id="residence-type"
+                  name="residence-type"
                   value={formData.residenceType || 'day-scholar'}
                   onChange={(e) => handleInputChange('residenceType', e.target.value)}
                 >
@@ -247,8 +328,11 @@ const Onboarding = () => {
               {formData.residenceType === 'day-scholar' && (
                 <>
                   <div className="form-group">
-                    <label>Bus to College (Start)</label>
+                    <label htmlFor="bus-college-start">Bus to College (Start)</label>
+                    <small className="form-helper">For day scholars only</small>
                     <input
+                      id="bus-college-start"
+                      name="bus-college-start"
                       type="time"
                       value={formData.busToCollegeStart}
                       onChange={(e) => handleInputChange('busToCollegeStart', e.target.value)}
@@ -256,8 +340,11 @@ const Onboarding = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label>Bus to College (End)</label>
+                    <label htmlFor="bus-college-end">Bus to College (End)</label>
+                    <small className="form-helper">For day scholars only</small>
                     <input
+                      id="bus-college-end"
+                      name="bus-college-end"
                       type="time"
                       value={formData.busToCollegeEnd}
                       onChange={(e) => handleInputChange('busToCollegeEnd', e.target.value)}
@@ -265,8 +352,11 @@ const Onboarding = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label>Prep Time (Start) - Not Tracked</label>
+                    <label htmlFor="prep-start">Prep Time (Start) - Not Tracked</label>
+                    <small className="form-helper">Morning preparation time</small>
                     <input
+                      id="prep-start"
+                      name="prep-start"
                       type="time"
                       value={formData.prepTimeStart}
                       onChange={(e) => handleInputChange('prepTimeStart', e.target.value)}
@@ -274,8 +364,11 @@ const Onboarding = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label>Prep Time (End) - Not Tracked</label>
+                    <label htmlFor="prep-end">Prep Time (End) - Not Tracked</label>
+                    <small className="form-helper">Morning preparation time</small>
                     <input
+                      id="prep-end"
+                      name="prep-end"
                       type="time"
                       value={formData.prepTimeEnd}
                       onChange={(e) => handleInputChange('prepTimeEnd', e.target.value)}
@@ -283,8 +376,11 @@ const Onboarding = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label>Bus Return (Start)</label>
+                    <label htmlFor="bus-return-start">Bus Return (Start)</label>
+                    <small className="form-helper">For day scholars only</small>
                     <input
+                      id="bus-return-start"
+                      name="bus-return-start"
                       type="time"
                       value={formData.busReturnStart}
                       onChange={(e) => handleInputChange('busReturnStart', e.target.value)}
@@ -292,8 +388,11 @@ const Onboarding = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label>Bus Return (End)</label>
+                    <label htmlFor="bus-return-end">Bus Return (End)</label>
+                    <small className="form-helper">For day scholars only</small>
                     <input
+                      id="bus-return-end"
+                      name="bus-return-end"
                       type="time"
                       value={formData.busReturnEnd}
                       onChange={(e) => handleInputChange('busReturnEnd', e.target.value)}
@@ -303,48 +402,43 @@ const Onboarding = () => {
               )}
               
               <div className="form-group">
-                <label>College Hours (Start)</label>
+                <label htmlFor="college-start" className="required">College Hours (Start)</label>
                 <input
+                  id="college-start"
+                  name="college-start"
                   type="time"
                   value={formData.collegeStart}
                   onChange={(e) => handleInputChange('collegeStart', e.target.value)}
+                  required
+                  className={!formData.collegeStart ? 'error' : 'success'}
                 />
+                {!formData.collegeStart && (
+                  <span className="field-error">College start time is required</span>
+                )}
               </div>
               
               <div className="form-group">
-                <label>College Hours (End)</label>
+                <label htmlFor="college-end" className="required">College Hours (End)</label>
                 <input
+                  id="college-end"
+                  name="college-end"
                   type="time"
                   value={formData.collegeEnd}
                   onChange={(e) => handleInputChange('collegeEnd', e.target.value)}
+                  required
+                  className={!formData.collegeEnd ? 'error' : 'success'}
                 />
+                {!formData.collegeEnd && (
+                  <span className="field-error">College end time is required</span>
+                )}
               </div>
               
-              {formData.residenceType === 'day-scholar' && (
-                <>
-                  <div className="form-group">
-                    <label>Bus Return (Start)</label>
-                    <input
-                      type="time"
-                      value={formData.busReturnStart}
-                      onChange={(e) => handleInputChange('busReturnStart', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Bus Return (End)</label>
-                    <input
-                      type="time"
-                      value={formData.busReturnEnd}
-                      onChange={(e) => handleInputChange('busReturnEnd', e.target.value)}
-                    />
-                  </div>
-                </>
-              )}
-              
               <div className="form-group">
-                <label>Refresh Time (Start) - Not Tracked</label>
+                <label htmlFor="refresh-start">Refresh Time (Start) - Not Tracked</label>
+                <small className="form-helper">Evening break time</small>
                 <input
+                  id="refresh-start"
+                  name="refresh-start"
                   type="time"
                   value={formData.refreshTimeStart}
                   onChange={(e) => handleInputChange('refreshTimeStart', e.target.value)}
@@ -352,8 +446,11 @@ const Onboarding = () => {
               </div>
               
               <div className="form-group">
-                <label>Refresh Time (End) - Not Tracked</label>
+                <label htmlFor="refresh-end">Refresh Time (End) - Not Tracked</label>
+                <small className="form-helper">Evening break time</small>
                 <input
+                  id="refresh-end"
+                  name="refresh-end"
                   type="time"
                   value={formData.refreshTimeEnd}
                   onChange={(e) => handleInputChange('refreshTimeEnd', e.target.value)}
@@ -361,25 +458,39 @@ const Onboarding = () => {
               </div>
               
               <div className="form-group">
-                <label>Active Evening (Start)</label>
+                <label htmlFor="evening-start" className="required">Active Evening (Start)</label>
                 <input
+                  id="evening-start"
+                  name="evening-start"
                   type="time"
                   value={formData.activeEveningStart}
                   onChange={(e) => handleInputChange('activeEveningStart', e.target.value)}
+                  required
+                  className={!formData.activeEveningStart ? 'error' : 'success'}
                 />
+                {!formData.activeEveningStart && (
+                  <span className="field-error">Evening start time is required</span>
+                )}
               </div>
               
               <div className="form-group">
-                <label>Active Evening (End)</label>
+                <label htmlFor="evening-end" className="required">Active Evening (End)</label>
                 <input
+                  id="evening-end"
+                  name="evening-end"
                   type="time"
                   value={formData.activeEveningEnd}
                   onChange={(e) => handleInputChange('activeEveningEnd', e.target.value)}
+                  required
+                  className={!formData.activeEveningEnd ? 'error' : 'success'}
                 />
+                {!formData.activeEveningEnd && (
+                  <span className="field-error">Evening end time is required</span>
+                )}
               </div>
               
-              <div className="form-group" style={{ marginTop: '2rem', borderTop: '1px solid #e5e5e5', paddingTop: '1.5rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <div className="form-group" style={{ gridColumn: '1 / -1', marginTop: '1.5rem', borderTop: '1px solid #e5e5e5', paddingTop: '1.5rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', textTransform: 'none', fontSize: '0.9375rem', letterSpacing: '0' }}>
                   <input
                     type="checkbox"
                     checked={formData.enableHealthMetrics || false}
@@ -388,7 +499,7 @@ const Onboarding = () => {
                   />
                   <span>Enable Health Metrics (Weight, Water Intake, Steps tracking)</span>
                 </label>
-                <small style={{ display: 'block', marginTop: '0.5rem', color: 'var(--text-secondary)', marginLeft: '1.75rem' }}>
+                <small className="form-helper" style={{ marginLeft: '1.75rem' }}>
                   You can enable/disable this later in Profile settings
                 </small>
               </div>
@@ -402,7 +513,8 @@ const Onboarding = () => {
             <p className="step-description">Define what counts as productive and unproductive for you</p>
             
             <div className="form-group">
-              <label>Productive Activities</label>
+              <label className="required">Productive Activities</label>
+              <small className="form-helper">Add at least one productive activity (e.g., LeetCode, Reading, Study)</small>
               {formData.productiveActivities.map((activity, index) => (
                 <div key={index} className="array-input">
                   <input
@@ -410,16 +522,27 @@ const Onboarding = () => {
                     value={activity}
                     onChange={(e) => handleArrayChange('productiveActivities', index, e.target.value)}
                     placeholder="e.g., LeetCode, Reading, Assignment"
+                    className={
+                      !activity.trim() && formData.productiveActivities.length === 1 && index === 0 
+                        ? 'error' 
+                        : activity.trim() 
+                          ? 'success' 
+                          : ''
+                    }
                   />
                   <button
                     type="button"
                     onClick={() => removeArrayItem('productiveActivities', index)}
                     className="secondary"
+                    disabled={formData.productiveActivities.length === 1}
                   >
                     Remove
                   </button>
                 </div>
               ))}
+              {formData.productiveActivities.every(a => !a.trim()) && (
+                <span className="field-error">Add at least one productive activity</span>
+              )}
               <button
                 type="button"
                 onClick={() => addArrayItem('productiveActivities')}
@@ -432,7 +555,8 @@ const Onboarding = () => {
             <div className="divider"></div>
             
             <div className="form-group">
-              <label>Unproductive Activities</label>
+              <label className="required">Unproductive Activities</label>
+              <small className="form-helper">Add at least one unproductive activity (e.g., Social Media, Gaming)</small>
               {formData.unproductiveActivities.map((activity, index) => (
                 <div key={index} className="array-input">
                   <input
@@ -440,16 +564,27 @@ const Onboarding = () => {
                     value={activity}
                     onChange={(e) => handleArrayChange('unproductiveActivities', index, e.target.value)}
                     placeholder="e.g., Social Media, YouTube, Gaming"
+                    className={
+                      !activity.trim() && formData.unproductiveActivities.length === 1 && index === 0 
+                        ? 'error' 
+                        : activity.trim() 
+                          ? 'success' 
+                          : ''
+                    }
                   />
                   <button
                     type="button"
                     onClick={() => removeArrayItem('unproductiveActivities', index)}
                     className="secondary"
+                    disabled={formData.unproductiveActivities.length === 1}
                   >
                     Remove
                   </button>
                 </div>
               ))}
+              {formData.unproductiveActivities.every(a => !a.trim()) && (
+                <span className="field-error">Add at least one unproductive activity</span>
+              )}
               <button
                 type="button"
                 onClick={() => addArrayItem('unproductiveActivities')}
@@ -470,8 +605,10 @@ const Onboarding = () => {
               <div key={semIndex} className="semester-config">
                 <div className="grid grid-3">
                   <div className="form-group">
-                    <label>Semester Number</label>
+                    <label htmlFor={`semester-number-${semIndex}`}>Semester Number</label>
                     <select
+                      id={`semester-number-${semIndex}`}
+                      name={`semester-number-${semIndex}`}
                       value={semester.semesterNumber}
                       onChange={(e) => {
                         const newSemesters = [...formData.semesters];
@@ -486,8 +623,10 @@ const Onboarding = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label>Start Date (DD/MM/YYYY)</label>
+                    <label htmlFor={`semester-start-${semIndex}`} className="required">Start Date (DD/MM/YYYY)</label>
                     <input
+                      id={`semester-start-${semIndex}`}
+                      name={`semester-start-${semIndex}`}
                       type="date"
                       value={semester.startDate}
                       onChange={(e) => {
@@ -496,17 +635,24 @@ const Onboarding = () => {
                         setFormData(prev => ({ ...prev, semesters: newSemesters }));
                       }}
                       placeholder="DD/MM/YYYY"
+                      required
+                      className={!semester.startDate ? 'error' : 'success'}
                     />
+                    {!semester.startDate && (
+                      <span className="field-error">Semester start date is required</span>
+                    )}
                     {semester.startDate && (
-                      <small className="date-hint">
+                      <small className="form-helper">
                         Selected: {new Date(semester.startDate + 'T00:00').toLocaleDateString('en-GB')}
                       </small>
                     )}
                   </div>
                   
                   <div className="form-group">
-                    <label>End Date (DD/MM/YYYY)</label>
+                    <label htmlFor={`semester-end-${semIndex}`} className="required">End Date (DD/MM/YYYY)</label>
                     <input
+                      id={`semester-end-${semIndex}`}
+                      name={`semester-end-${semIndex}`}
                       type="date"
                       value={semester.endDate}
                       onChange={(e) => {
@@ -515,9 +661,14 @@ const Onboarding = () => {
                         setFormData(prev => ({ ...prev, semesters: newSemesters }));
                       }}
                       placeholder="DD/MM/YYYY"
+                      required
+                      className={!semester.endDate ? 'error' : 'success'}
                     />
+                    {!semester.endDate && (
+                      <span className="field-error">Semester end date is required</span>
+                    )}
                     {semester.endDate && (
-                      <small className="date-hint">
+                      <small className="form-helper">
                         Selected: {new Date(semester.endDate + 'T00:00').toLocaleDateString('en-GB')}
                       </small>
                     )}
@@ -531,7 +682,7 @@ const Onboarding = () => {
         {step === 4 && (
           <div className="onboarding-step">
             <h2>Subject Details</h2>
-            <p className="step-description">Add your subjects and their units</p>
+            <p className="step-description">Add your subjects and their units (fields marked with * are required)</p>
             
             {formData.semesters.map((semester, semIndex) => (
               <div key={semIndex} className="semester-subjects">
@@ -541,32 +692,52 @@ const Onboarding = () => {
                   <div key={subIndex} className="subject-card card">
                     <div className="grid grid-3">
                       <div className="form-group">
-                        <label>Subject Code</label>
+                        <label htmlFor={`subject-code-${semIndex}-${subIndex}`} className="required">Subject Code</label>
                         <input
+                          id={`subject-code-${semIndex}-${subIndex}`}
+                          name={`subject-code-${semIndex}-${subIndex}`}
                           type="text"
                           value={subject.code}
                           onChange={(e) => handleSubjectChange(semIndex, subIndex, 'code', e.target.value)}
                           placeholder="e.g., UIT3311"
-                          className={isDuplicateCode(semIndex, subIndex, subject.code) ? 'input-error' : ''}
+                          required
+                          className={
+                            !subject.code.trim() ? 'error' :
+                            isDuplicateCode(semIndex, subIndex, subject.code) ? 'error' : 
+                            'success'
+                          }
                         />
-                        {isDuplicateCode(semIndex, subIndex, subject.code) && (
-                          <small className="error-hint">⚠️ Duplicate code! Each subject must have a unique code.</small>
+                        {!subject.code.trim() && (
+                          <span className="field-error">Subject code is required</span>
+                        )}
+                        {subject.code.trim() && isDuplicateCode(semIndex, subIndex, subject.code) && (
+                          <span className="field-error">⚠️ Duplicate code! Each subject must have a unique code.</span>
                         )}
                       </div>
                       
                       <div className="form-group">
-                        <label>Subject Name</label>
+                        <label htmlFor={`subject-name-${semIndex}-${subIndex}`} className="required">Subject Name</label>
                         <input
+                          id={`subject-name-${semIndex}-${subIndex}`}
+                          name={`subject-name-${semIndex}-${subIndex}`}
                           type="text"
                           value={subject.name}
                           onChange={(e) => handleSubjectChange(semIndex, subIndex, 'name', e.target.value)}
                           placeholder="e.g., Data Structures"
+                          required
+                          className={!subject.name.trim() ? 'error' : 'success'}
                         />
+                        {!subject.name.trim() && (
+                          <span className="field-error">Subject name is required</span>
+                        )}
                       </div>
                       
                       <div className="form-group">
-                        <label>Faculty Initials</label>
+                        <label htmlFor={`faculty-initials-${semIndex}-${subIndex}`}>Faculty Initials</label>
+                        <small className="form-helper">Optional</small>
                         <input
+                          id={`faculty-initials-${semIndex}-${subIndex}`}
+                          name={`faculty-initials-${semIndex}-${subIndex}`}
                           type="text"
                           value={subject.facultyInitials}
                           onChange={(e) => handleSubjectChange(semIndex, subIndex, 'facultyInitials', e.target.value)}
@@ -576,8 +747,10 @@ const Onboarding = () => {
                     </div>
                     
                     <div className="form-group">
-                      <label>Course Type</label>
+                      <label htmlFor={`course-type-${semIndex}-${subIndex}`}>Course Type</label>
                       <select
+                        id={`course-type-${semIndex}-${subIndex}`}
+                        name={`course-type-${semIndex}-${subIndex}`}
                         value={subject.courseType || 'theory'}
                         onChange={(e) => handleSubjectChange(semIndex, subIndex, 'courseType', e.target.value)}
                       >
@@ -590,13 +763,16 @@ const Onboarding = () => {
                     {(subject.courseType === 'theory' || subject.courseType === 'tcp' || !subject.courseType) && (
                       <div className="units-section">
                         <label>Theory Units</label>
+                        <small className="form-helper">Optional - Add unit names for better tracking</small>
                         {subject.units.map((unit, unitIndex) => (
                           <div key={unitIndex} className="form-group">
                             <input
+                              id={`unit-${semIndex}-${subIndex}-${unitIndex}`}
+                              name={`unit-${semIndex}-${subIndex}-${unitIndex}`}
                               type="text"
                               value={unit.name}
                               onChange={(e) => handleUnitChange(semIndex, subIndex, unitIndex, 'name', e.target.value)}
-                              placeholder={`Unit ${unit.number} name`}
+                              placeholder={`Unit ${unit.number} name (optional)`}
                             />
                           </div>
                         ))}
@@ -607,6 +783,7 @@ const Onboarding = () => {
                       type="button"
                       onClick={() => removeSubject(semIndex, subIndex)}
                       className="secondary"
+                      disabled={semester.subjects.length === 1}
                     >
                       Remove Subject
                     </button>
@@ -635,27 +812,28 @@ const Onboarding = () => {
           )}
           
           {step < 4 ? (
-            <button onClick={nextStep}>
-              Next Step
-            </button>
+            <>
+              <button onClick={nextStep} disabled={!canProceed()}>
+                Next Step
+              </button>
+              {!canProceed() && (
+                <span className="button-disabled-reason">
+                  {getValidationMessage()}
+                </span>
+              )}
+            </>
           ) : (
             <>
               <button 
                 onClick={handleSubmit} 
-                disabled={loading || formData.semesters.some((sem, semIdx) => 
-                  sem.subjects.some((sub, subIdx) => 
-                    isDuplicateCode(semIdx, subIdx, sub.code) || !sub.code.trim() || !sub.name.trim()
-                  )
-                )}
+                disabled={loading || !canProceed()}
               >
                 {loading ? 'Saving...' : 'Complete Setup'}
               </button>
-              {formData.semesters.some((sem, semIdx) => 
-                sem.subjects.some((sub, subIdx) => isDuplicateCode(semIdx, subIdx, sub.code))
-              ) && (
-                <small className="error-hint" style={{ marginTop: '0.5rem', textAlign: 'center' }}>
-                  ⚠️ Please fix duplicate subject codes before continuing
-                </small>
+              {!canProceed() && (
+                <span className="button-disabled-reason">
+                  {getValidationMessage()}
+                </span>
               )}
             </>
           )}
